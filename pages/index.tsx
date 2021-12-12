@@ -13,8 +13,8 @@ let parser = new Parser({
 
 
 const Home: NextPage = (props: any) => {
-  const { feed } = props;
-  const [posts, setPosts] = useState([]);
+  const [feed, setFeed] = useState<any>({});
+  const [loading, setLoading] = useState<boolean>(true);
   const [keyword, setKeyword] = useState('');
 
   const [filterWordList, setFilterWordList] = useState(['']);
@@ -22,10 +22,17 @@ const Home: NextPage = (props: any) => {
   useEffect(() => {
     const words = keyword.split(',')
     setFilterWordList(words);
-  }, [keyword])
+  }, [keyword]);
 
+  const getSource = async () => {
+    let result = await parser.parseURL('https://cao-ddwz.remi10.workers.dev');
+    setFeed(result);
+    setLoading(false);
+  };
 
-
+  useEffect(() => {
+    getSource();
+  }, []);
 
   return (
     <div >
@@ -47,18 +54,20 @@ const Home: NextPage = (props: any) => {
           </div>
           <div className=' p-4 h-screen'>
             {
-              filterWordList.map((word: string) => {
-                return feed.items.map((item: any, key: any) => {
+              loading ? <div className='m-2 px-2 py-8 text-4xl font-thin animate-pulse text-slate-500 mt-8 bg-slate-200 rounded-lg'>信息员加载中 ... ...</div> : filterWordList.map((word: string) => {
+                return (feed) ? feed?.items?.map((item: any, key: any) => {
                   if (item.title.includes(word)) {
                     // eslint-disable-next-line react/jsx-key
                     // eslint-disable-next-line @next/next/link-passhref
                     return <Link href={item.link} key={key}>
-                      <div key={key} className='  py-2 px-4 rounded-xl my-2 hover:bg-slate-200 cursor-pointer'>
+                      <div key={key} className='  py-2 px-4 rounded-xl my-2 hover:bg-slate-100 cursor-pointer'>
                         <div className='text-slate-500 m-0'>{item.title}</div>
                         <div className='text-slate-400 font-thin text-sm m-0'>{item.pubDate}</div>
                       </div></Link>
                   }
-                })
+                }) : <>
+                  Loading...
+                </>
               })
             }
           </div>
@@ -67,13 +76,6 @@ const Home: NextPage = (props: any) => {
       </div>
     </div>
   )
-}
-
-
-Home.getInitialProps = async () => {
-  let feed = await parser.parseURL('http://www.people.com.cn/rss/politics.xml');
-  console.log(feed.items.length);
-  return { feed }
 }
 
 export default Home;
