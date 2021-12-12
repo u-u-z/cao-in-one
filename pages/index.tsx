@@ -45,7 +45,7 @@ const Home: NextPage = (props: any) => {
               }} />
             </div>
           </div>
-          <div className=' p-4 h-screen overflow-scroll'>
+          <div className=' p-4 h-screen'>
             {
               filterWordList.map((word: string) => {
                 return feed.items.map((item: any, key: any) => {
